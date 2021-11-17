@@ -1,4 +1,23 @@
-export const trending = (req,res) => res.render("home",{pageTitle:"Home"});
+const fakeUser = {
+    username:"Lee",
+    loggedIn:false
+}
+
+
+export const trending = (req,res) => {
+    const videos = [
+        {
+            title:"hello",
+        },
+        {
+            title:"Video #2",
+        },
+        {
+            title:"Wathsup",
+        },
+    ];
+    res.render("home",{pageTitle:"Home",fakeUser,videos}) ;
+}
 export const see = (req,res) => {res.render("watch",{pageTitle:"Watch"});};
 export const edit = (req,res) => res.render("edit",{pageTitle:"Edit"});
 export const search = (req,res) => res.send("search");

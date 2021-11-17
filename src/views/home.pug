@@ -1,4 +1,9 @@
 extends base.pug
 
 block content 
-    h1 Home
+    h2 Welcome to Watch Viedoes 
+    ul 
+        each video in videos
+            li=video.title
+        else 
+            li Sorry Nothing
