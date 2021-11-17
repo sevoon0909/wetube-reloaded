@@ -8,16 +8,11 @@ const port = 4000;
 
 const app = express();
 const logger = morgan("dev")
-app.use(logger);
+app.use("/",logger);
 
-app.use("/",globalRouter);
+app.use("/",()=>console.log("@"));
 app.use("/users",userRouter);
 app.use("/videos",videoRouter);
 
-const handleLogin = (req,res) => {
-    return res.send({message:"Login Here"});
-}
-
-app.get("/login", handleLogin);
 
 app.listen(port,() => console.log("Server listenning on port 4000"))
