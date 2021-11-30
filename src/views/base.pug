@@ -13,6 +13,8 @@ html(lang="ko")
                     if(loggedIn)
                         li
                             a(href="/logout") Log Out
+                        li
+                            a(href="/") #{user.name} 의 Profile
                     else 
                         li 
                             a(href="/join") Join
