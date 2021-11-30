@@ -59,20 +59,22 @@ export const getLogin = (req, res) => {
 export const postLogin = async (req, res) => {
     const {username,password} = req.body;
     const user = await User.findOne({username});
+    const pageTitle = "로그인";
     if(!user){
-        res.status(400).render("login",{pageTitle,errorMessage:"존재하지 않는 가입명입니다."});
+        return res.status(400).render("login",{pageTitle,errorMessage:"존재하지 않는 가입명입니다."});
     }
 
     const existsPW = await bcrypt.compare(password, user.password);
     if (!existsPW) {
-        res.status(400).render("login", {
-            pageTitle: "로그인",
+        return res.status(400).render("login", {
+            pageTitle,
             errorMessage: "비밀번호를 확인해주세요."
-        })
+        });
     }
 
     req.session.loggedIn = true;
     req.session.user = user;
+    console.log(user.name);
 
     return res.redirect("/");
 };
