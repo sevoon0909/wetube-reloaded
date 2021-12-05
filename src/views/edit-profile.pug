@@ -3,7 +3,8 @@ extends base
 block content 
     h4  Change Title of Video
     form(method="POST")
-        input(name="title" ,placeholder="Video Title",value=video.title, required, maxlength=80)
-        input(name="description" ,placeholder="Description",value=video.description, required, minlength=20)
-        input(name="hashtags" ,placeholder="Hashtags",value=video.hashtags.join(), required)
-        input(value="Save" type="submit")
+        input(placeholder="Name",name="name", type="text", value=loggedInUser.name, required)
+        input(placeholder="Email",name="email", type="email",value=loggedInUser.email,required)
+        input(placeholder="Username",name="username", type="text",value=loggedInUser.username,required)
+        input(placeholder="Location",name="location", type="text",value=loggedInUser.location,required)
+        input(type="submit" value="Update Profile" )
