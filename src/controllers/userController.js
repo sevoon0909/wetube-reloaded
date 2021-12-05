@@ -22,12 +22,10 @@ export const postJoin = async (req, res) => {
   });
 
   if (password !== password2) {
-    return res
-      .status(400)
-      .render("join", {
-        pageTitle,
-        errorMessage: "확인 비밀번호랑 서로 다릅니다.",
-      });
+    return res.status(400).render("join", {
+      pageTitle,
+      errorMessage: "확인 비밀번호랑 서로 다릅니다.",
+    });
   }
 
   if (userExists) {
@@ -38,6 +36,7 @@ export const postJoin = async (req, res) => {
   try {
     await User.create({ email, username, password, name, location });
   } catch (error) {
+    console.log(error);
     return res.status(400).render("join", {
       pageTitle,
       errorMessage: error._message ? error._message : "Internal Server",
@@ -56,12 +55,10 @@ export const postLogin = async (req, res) => {
   const user = await User.findOne({ username, socialOny: false });
   const pageTitle = "로그인";
   if (!user) {
-    return res
-      .status(400)
-      .render("login", {
-        pageTitle,
-        errorMessage: "존재하지 않는 가입명입니다.",
-      });
+    return res.status(400).render("login", {
+      pageTitle,
+      errorMessage: "존재하지 않는 가입명입니다.",
+    });
   }
 
   const existsPW = await bcrypt.compare(password, user.password);
@@ -159,14 +156,79 @@ export const getEdit = (req, res) => {
   res.render("edit-profile", { pageTitle: "Edit Profile" });
 };
 export const postEdit = async (req, res) => {
-  const {
-    session: {
-      user: { id },
+  const { user } = req.session;
+  const { username, name, email, location } = req.body;
+
+  const queryParams = [{ username }, { email }];
+
+  const existUser = await User.findOne({
+    _id: { $ne: user._id },
+    $or: queryParams,
+  });
+
+  if (existUser) {
+    return res.status(400).render("edit-profile", {
+      pageTitle: "Edit Profile",
+      errorMessage: "존재하는 유저명/이메일",
+    });
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    user._id,
+    {
+      name,
+      username,
+      email,
+      location,
     },
-  } = req;
-  const { user, email, username, location } = req.body;
-  await User.findByIdAndUpdate();
-  res.render("edit-profile", { pageTitle: "Edit Profile" });
+    { new: true }
+  );
+  //option new : true 업데이트이후 기본값은 업데이트 이전값을 돌려준다.
+  req.session.user = updatedUser;
+  // req.session.user = {
+  //   ...req.session.user,
+  //   name,
+  //   username,
+  //   email,
+  //   location,
+  // }
+  res.redirect("/users/edit");
 };
-export const edit = (req, res) => res.send("Edit User");
+
+export const getChangePassword = (req, res) => {
+  if (req.session.user.socialOnly === true) {
+    return res.redirect("/");
+  }
+  return res.render("users/change-password", { pageTitle: "Change Password" });
+};
+export const postChangePassword = async (req, res) => {
+  //result password result
+  const {user} = req.session;
+  const {
+    body: { oldPassword, newPassword, newPasswordConfirm },
+  } = req;
+
+  const findUser = await User.findById({_id:user._id})
+  const existsPW = await bcrypt.compare(oldPassword, findUser.password);
+  const pageTitle = "Change Password";
+  if (!existsPW) {
+    return res
+      .status(400)
+      .render("users/change-password", { pageTitle, errorMessage: "비밀번호를 확인해주세요." });
+  }
+  if (newPassword !== newPasswordConfirm) {
+    return res.status(400).render("users/change-password", {
+      pageTitle,
+      errorMessage: "확인 비밀번호가 다릅니다.",
+    });
+  }
+
+  console.log(user.password);
+  findUser.password = newPasswordConfirm;
+  await findUser.save();
+  console.log(findUser.password);
+  console.log(user.password);
+  return res.redirect("/users/logout");
+};
+
 export const see = (req, res) => res.send("See User");

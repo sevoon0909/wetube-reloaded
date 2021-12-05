@@ -2,9 +2,14 @@ extends base
 
 block content 
     h4  Change Title of Video
+    if errorMessage 
+        span=errorMessage
     form(method="POST")
         input(placeholder="Name",name="name", type="text", value=loggedInUser.name, required)
         input(placeholder="Email",name="email", type="email",value=loggedInUser.email,required)
         input(placeholder="Username",name="username", type="text",value=loggedInUser.username,required)
         input(placeholder="Location",name="location", type="text",value=loggedInUser.location,required)
         input(type="submit" value="Update Profile" )
+        if !loggedInUser.socialOnly
+            hr
+            a(href="change-password") Change Password &rarr;
